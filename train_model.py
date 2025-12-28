@@ -52,35 +52,43 @@ def train_model(model,
             data = data.to(device = device)
             target = target.to(device = device)
 
-            for i in range(1, max_len):
-                # Learning on the last only
-                last_target = target[:, i]
+            
+        for _, (data, target) in enumerate(train_loader):
+            # Counting size of dataset
+            batch_size, max_len = target.shape
+            dataset_size += batch_size
+            
+            # Put the data on the appropriate device
+            data = data.to(device = device)
+            target = target.to(device = device)
 
-                # Checking if there are only padding
-                mask = (last_target != VOID_TOKEN)
-                if len(last_target[mask]) == 0:
-                    break
+            # Getting the input and the label of the model
+            inp = target[:, :-1]
+            label = target[:, 1:]
+
+            # Checking if there are only padding
+            mask = (label != VOID_TOKEN)
+            if len(label[mask]) != 0:
                 cpt_batch += mask.int().sum()
-
+                
                 # Computation of the output
-                output = model(data, target[:,:i])
-                last_output = output[:, -1, :]
-
+                output = model(data, inp)
+    
                 # Computation of the loss
-                current_loss = criterion(last_output, last_target)
+                current_loss = criterion(output.transpose(1,2), label)
                 loss += current_loss
                 train_loss += current_loss.item()
-
+    
                 # Computation of the predictions
-                predictions = torch.argmax(last_output, dim = -1)
-                predictions = (predictions[mask] == last_target[mask]).int()
-
+                predictions = torch.argmax(output, dim = -1)
+                predictions = (predictions[mask] == label[mask]).int()
+    
                 # Counting the good predictions
                 good_predictions += predictions.sum()
                 total_predictions += mask.int().sum()
-
+    
                 # Making an optimizer step
-                if cpt_batch >= batch_size:
+                if cpt_batch >= batch_size :
                     optimizer.zero_grad()
                     loss.backward()
                     optimizer.step()
@@ -106,32 +114,32 @@ def train_model(model,
                 # Counting size of dataset
                 batch_size, max_len = target.shape
                 dataset_size += batch_size
-
+                
                 # Put the data on the appropriate device
                 data = data.to(device = device)
                 target = target.to(device = device)
-
-                for i in range(1, max_len):                
-                    # Learning on the last only
-                    last_target = target[:, i]
-
-                    # Checking if there are only padding
-                    mask = (last_target != VOID_TOKEN)
-                    if len(last_target[mask]) == 0:
-                        break
-
+    
+                # Getting the input and the label of the model
+                inp = target[:, :-1]
+                label = target[:, 1:]
+    
+                # Checking if there are only padding
+                mask = (label != VOID_TOKEN)
+                if len(label[mask]) != 0:
+                    cpt_batch += mask.int().sum()
+                    
                     # Computation of the output
-                    output = model(data, target[:,:i])
-                    last_output = output[:, -1, :]
-
+                    output = model(data, inp)
+        
                     # Computation of the loss
-                    loss = criterion(last_output, last_target)
-                    test_loss += loss.item()
-
+                    current_loss = criterion(output.transpose(1,2), label)
+                    loss += current_loss
+                    test_loss += current_loss.item()
+        
                     # Computation of the predictions
-                    predictions = torch.argmax(last_output, dim = -1)
-                    predictions = (predictions[mask] == last_target[mask]).int()
-
+                    predictions = torch.argmax(output, dim = -1)
+                    predictions = (predictions[mask] == label[mask]).int()
+        
                     # Counting the good predictions
                     good_predictions += predictions.sum()
                     total_predictions += mask.int().sum()
