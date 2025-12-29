@@ -85,7 +85,7 @@ analyzer_fr, analyzer_en = make_analyzers(vec_fr, vec_en)
 
 invert_vocabulary_fr, invert_vocabulary_en = invert_vocabularies(vec_fr, vec_en)
 
-date = '2025-12-28_23-00-21'
+date = '2025-12-29_06-46-31'
 
 model_path = '/Users/samsam-dz/Documents/CoursENS/deep_learning/TP/translator/results/' + date + '/model.pth'
 model = Transformer(vocabulary_size_fr, vocabulary_size_en)

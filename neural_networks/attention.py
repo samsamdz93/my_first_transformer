@@ -41,7 +41,7 @@ class CrossAttention(nn.Module):
         # Checking if we want a mask
         if mask:
             QK = QK + create_mask(sequence_length)
-        QK_normalized = nn.functional.softmax(QK, dim = 1)
+        QK_normalized = nn.functional.softmax(QK, dim = -1)
 
         # Value matrix
         V = self.valueL(self.valueR(y))

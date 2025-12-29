@@ -7,21 +7,21 @@ from sklearn.model_selection import train_test_split
 
 # Class in order to make a dataloader
 class TranslationDataset(Dataset):
-    def __init__(self, df, void):
+    def __init__(self, df, void_fr, void_en):
         self.df = df.reset_index(drop=True)
         self.max_len_fr = df['tokens fr'].map(len).max()
         self.max_len_en = df['tokens en'].map(len).max()
-        self.void = void
+        self.void_fr = void_fr
+        self.void_en = void_en
 
     def __len__(self):
         return len(self.df)
 
     def __getitem__(self, idx):
-        global VOID_TOKEN
         padsX = self.max_len_fr - len(self.df.loc[idx, 'tokens fr'])
         padsY = self.max_len_en - len(self.df.loc[idx, 'tokens en'])
-        return (torch.tensor(self.df.loc[idx, 'tokens fr'] + [self.void] * padsX),
-                torch.tensor(self.df.loc[idx, 'tokens en'] + [self.void] * padsY))
+        return (torch.tensor(self.df.loc[idx, 'tokens fr'] + [self.void_fr] * padsX),
+                torch.tensor(self.df.loc[idx, 'tokens en'] + [self.void_en] * padsY))
 
 
 def load_dataset(dataset_file):
@@ -53,6 +53,7 @@ def make_vectorizers(df):
 
     # Adding the void token to the output language
     vec_en.vocabulary_['vvvvv'] = len(vec_en.vocabulary_)
+    vec_fr.vocabulary_['vvvvv'] = len(vec_fr.vocabulary_)
 
     return vec_fr, vec_en
 
@@ -74,20 +75,4 @@ def get_max_lenghts(df):
     max_len_en = df['tokens en'].map(len).max()
     return max_len_fr, max_len_en
 
-
-    # Separating the train and test sets
-    train_df, test_df = train_test_split(
-        df,
-        test_size=0.15,
-        random_state=42,
-        shuffle=True
-    )
-
-    # Converting into a Pytorch Dataset
-    train_dataset = TranslationDataset(train_df)
-    test_dataset = TranslationDataset(test_df)
-
-    # Making a loader
-    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size = batch_size)
-    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size = batch_size, shuffle = False)
     

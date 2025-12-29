@@ -48,7 +48,6 @@ os.makedirs(out_dir)
 path_model = os.path.join(out_dir, "model.pth")
 path_config = os.path.join(out_dir, "config.json")
 path_logs = os.path.join(out_dir, "logs.json")
-# path_print = os.path.join(out_dir, "print.txt")
 
 # Store the configuration
 with open(path_config, "w") as f:
@@ -89,10 +88,12 @@ print('max_len_en :', max_len_en)
 invert_vocabulary_fr, invert_vocabulary_en = invert_vocabularies(vec_fr, vec_en)
 
 # Constant tokens
-VOID_TOKEN = vec_en.vocabulary_.get('vvvvv')
+VOID_TOKEN_EN = vec_en.vocabulary_.get('vvvvv')
+VOID_TOKEN_FR = vec_fr.vocabulary_.get('vvvvv')
 END_TOKEN = vec_en.vocabulary_.get('eeeee')
 START_TOKEN = vec_en.vocabulary_.get('sssss')
-print('VOID_TOKEN :', VOID_TOKEN)
+print('VOID_TOKEN_EN :', VOID_TOKEN_EN)
+print('VOID_TOKEN_FR :', VOID_TOKEN_FR)
 print('START_TOKEN :', START_TOKEN)
 print('END_TOKEN :', END_TOKEN)
 
@@ -109,8 +110,8 @@ train_df, test_df = train_test_split(
 )
 
 # Converting into a Pytorch Dataset
-train_dataset = TranslationDataset(train_df, VOID_TOKEN)
-test_dataset = TranslationDataset(test_df, VOID_TOKEN)
+train_dataset = TranslationDataset(train_df, VOID_TOKEN_FR, VOID_TOKEN_EN)
+test_dataset = TranslationDataset(test_df, VOID_TOKEN_FR, VOID_TOKEN_EN)
 print('Train_size :', len(train_dataset))
 print('Test_size :', len(test_dataset))
 
@@ -142,7 +143,7 @@ if args.model_path != '':
 model.to(device)
 
 # Loss (while avoiding void token)
-criterion = nn.CrossEntropyLoss(ignore_index=VOID_TOKEN, reduction = 'sum')
+criterion = nn.CrossEntropyLoss(ignore_index=VOID_TOKEN_EN, reduction = 'sum')
 
 # Optimizer
 optimizer = optim.SGD(model.parameters(), lr = args.lr, momentum = args.momentum)
@@ -164,7 +165,7 @@ train_model(
     path_logs = path_logs,
     path_model = path_model,
     device = device,
-    VOID_TOKEN = VOID_TOKEN
+    VOID_TOKEN = VOID_TOKEN_EN
     )
 
 torch.save(model.state_dict(), path_model)
