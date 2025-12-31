@@ -7,10 +7,19 @@ from sklearn.model_selection import train_test_split
 
 # Class in order to make a dataloader
 class TranslationDataset(Dataset):
-    def __init__(self, df, void_fr, void_en):
+    def __init__(self,
+        df : pd.DataFrame,
+        void_fr : int,
+        void_en : int
+        ):
+
         self.df = df.reset_index(drop=True)
+
+        # Maximum length of the dataset
         self.max_len_fr = df['tokens fr'].map(len).max()
         self.max_len_en = df['tokens en'].map(len).max()
+
+        # Padding indices
         self.void_fr = void_fr
         self.void_en = void_en
 
@@ -24,10 +33,10 @@ class TranslationDataset(Dataset):
                 torch.tensor(self.df.loc[idx, 'tokens en'] + [self.void_en] * padsY))
 
 
-def load_dataset(dataset_file):
+def load_dataset(dataset_file : str) -> pd.DataFrame:
     df = pd.read_csv(dataset_file, sep='\t', names=('en', 'fr'))
 
-    df['sample fr'] = df.apply(lambda row: f"{row['fr']}", axis=1)
+    df['sample fr'] = df.apply(lambda row: f"{row['fr']} eeeee", axis=1)
     df['sample en'] = df.apply(lambda row: f"sssss {row['en']} eeeee", axis=1)
 
     vec_fr, vec_en = make_vectorizers(df)
@@ -43,7 +52,7 @@ def load_dataset(dataset_file):
 
 
 
-def make_vectorizers(df):
+def make_vectorizers(df : pd.DataFrame):
     # Making vocabularies
     vec_en = CountVectorizer(token_pattern=r'\b\w+\b')
     vec_en.fit(df['sample en'])
@@ -57,20 +66,20 @@ def make_vectorizers(df):
 
     return vec_fr, vec_en
 
-def make_analyzers(vec_fr, vec_en):
+def make_analyzers(vec_fr : CountVectorizer, vec_en : CountVectorizer):
     # Build analyzers
     analyzer_en = vec_en.build_analyzer()
     analyzer_fr = vec_fr.build_analyzer()
     return analyzer_fr, analyzer_en
 
-def invert_vocabularies(vec_fr, vec_en):
+def invert_vocabularies(vec_fr : CountVectorizer, vec_en : CountVectorizer):
     # Useful to convert tokens into strings
     invert_vocabulary_fr = {y: x for x, y in vec_fr.vocabulary_.items()}
     invert_vocabulary_en = {y: x for x, y in vec_en.vocabulary_.items()}
     return invert_vocabulary_fr, invert_vocabulary_en
 
 
-def get_max_lenghts(df):
+def get_max_lenghts(df : pd.DataFrame):
     max_len_fr = df['tokens fr'].map(len).max()
     max_len_en = df['tokens en'].map(len).max()
     return max_len_fr, max_len_en

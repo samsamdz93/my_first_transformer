@@ -135,7 +135,8 @@ device = torch.device("mps" if torch.mps.is_available() else "cpu")
 print('Device :', device)
 
 # Model
-model = Transformer(vocabulary_size_fr, vocabulary_size_en)
+model = Transformer(vocabulary_size_fr, vocabulary_size_en, pad_fr = VOID_TOKEN_FR, pad_en = VOID_TOKEN_EN)
+print(model)
 
 # Load weights if specified
 if args.model_path != '':

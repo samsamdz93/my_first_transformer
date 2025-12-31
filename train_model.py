@@ -47,16 +47,6 @@ def train_model(model,
             # Counting size of dataset
             batch_size, max_len = target.shape
             dataset_size += batch_size
-
-            # Put the data on the appropriate device
-            data = data.to(device = device)
-            target = target.to(device = device)
-
-            
-        for _, (data, target) in enumerate(train_loader):
-            # Counting size of dataset
-            batch_size, max_len = target.shape
-            dataset_size += batch_size
             
             # Put the data on the appropriate device
             data = data.to(device = device)
