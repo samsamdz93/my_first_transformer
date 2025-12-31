@@ -57,8 +57,8 @@ def train_model(model,
             label = target[:, 1:]
 
             # Checking if there are only padding
-            mask = (label != VOID_TOKEN)
-            if len(label[mask]) != 0:
+            mask = (inp != VOID_TOKEN)
+            if len(inp[mask]) != 0:
                 cpt_batch += mask.int().sum()
                 
                 # Computation of the output
@@ -114,8 +114,8 @@ def train_model(model,
                 label = target[:, 1:]
     
                 # Checking if there are only padding
-                mask = (label != VOID_TOKEN)
-                if len(label[mask]) != 0:
+                mask = (inp != VOID_TOKEN)
+                if len(inp[mask]) != 0:
                     cpt_batch += mask.int().sum()
                     
                     # Computation of the output

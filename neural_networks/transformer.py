@@ -49,7 +49,8 @@ class Transformer(nn.Module):
         pad_fr : int,
         pad_en : int,
         embed_size : int = 128,
-        N : int = 4
+        N : int = 4,
+        dropout : float = 0.1
         ):
 
         super(Transformer, self).__init__()
@@ -61,9 +62,10 @@ class Transformer(nn.Module):
         self.positionnal_encoding = PositionalEncoding(embed_size)
         self.emb_in = nn.Embedding(vocabulary_size_in, embed_size, padding_idx = pad_fr)
         self.emb_out = nn.Embedding(vocabulary_size_out, embed_size, padding_idx = pad_en)
-        self.encoder = Encoder(embed_size, N)
-        self.decoder = Decoder(embed_size, N)
+        self.encoder = Encoder(embed_size, N, dropout = dropout)
+        self.decoder = Decoder(embed_size, N, dropout = dropout)
         self.last_layer = nn.Linear(embed_size, vocabulary_size_out)
+        self.dropout = nn.Dropout(p = dropout)
 
     def forward(self,
         x : torch.Tensor,
@@ -76,12 +78,15 @@ class Transformer(nn.Module):
 
         # Embedding x and y
         x = self.emb_in(x)
-        
         y = self.emb_out(y)
         
         # Applying positionnal encoding
         x = self.positionnal_encoding(x)
         y = self.positionnal_encoding(y)
+
+        # Applying a dropout to prevent overfitting
+        x = self.dropout(x)
+        y = self.dropout(y)
 
         # Encoding the input
         x = self.encoder(x, mask_padding = mask_x)

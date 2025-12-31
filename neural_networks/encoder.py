@@ -9,9 +9,9 @@ from .mlp import *
 
 # Encoder block
 class EncoderBlock(nn.Module):
-    def __init__(self, embed_size):
+    def __init__(self, embed_size, dropout = 0.1):
         super(EncoderBlock, self).__init__()
-        self.att = MultiHeadAttention(embed_size)
+        self.att = MultiHeadAttention(embed_size, dropout = dropout)
         self.mlp = MLP([embed_size, 2 * embed_size, embed_size])
         self.dropout = nn.Dropout(p = 0.1)
 
@@ -27,12 +27,12 @@ class EncoderBlock(nn.Module):
 
 # Definition of an Encoder
 class Encoder(nn.Module):
-    def __init__(self, embed_size : int, N : int):
+    def __init__(self, embed_size : int, N : int, dropout : float = 0.1):
         super(Encoder, self).__init__()
         self.blocks = []
         self.N = N
         for _ in range(N):
-            self.blocks.append(EncoderBlock(embed_size))
+            self.blocks.append(EncoderBlock(embed_size, dropout = dropout))
         self.blocks = nn.ModuleList(self.blocks)
 
     def forward(self,

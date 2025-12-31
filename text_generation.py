@@ -4,7 +4,7 @@ from neural_networks.transformer import Transformer
 
 # Convert a string into a tensor for the input
 def str_to_tensor_fr(prompt : str) -> torch.Tensor:
-    global analyzer_fr
+    global analyzer_fr, vec_fr
     prompt = analyzer_fr(prompt)
     prompt = list(map(lambda x: vec_fr.vocabulary_.get(x), prompt))
     prompt = list(filter(lambda x : x is not None, prompt))
@@ -12,7 +12,7 @@ def str_to_tensor_fr(prompt : str) -> torch.Tensor:
     return prompt
 
 def str_to_tensor_en(prompt : str, device : str = None) -> torch.Tensor:
-    global analyzer_en
+    global analyzer_en, vec_en
     prompt = analyzer_en(prompt)
     prompt = list(map(lambda x: vec_en.vocabulary_.get(x), prompt))
     prompt = torch.tensor(prompt).unsqueeze(0)
@@ -22,7 +22,7 @@ def str_to_tensor_en(prompt : str, device : str = None) -> torch.Tensor:
         return prompt.to(device = device)
 
 
-def generate_text(model : torch.nn.Module, prompt : str, start : str = 'sssss', print_prompt : bool = False):
+def generate_text(model : torch.nn.Module, prompt : str, start : str = 'sssss', print_prompt : bool = False, max_len : int = 100):
     global invert_vocabulary_en, device
 
     if print_prompt:
@@ -41,7 +41,7 @@ def generate_text(model : torch.nn.Module, prompt : str, start : str = 'sssss', 
     last_word = ''
 
     i = 0
-    while last_word != 'eeeee' and last_word != 'vvvvv':
+    while last_word != 'eeeee' and last_word != 'vvvvv' and i < max_len:
         
         # Computing the output of the model
         output = model(prompt, text_generated)
@@ -57,9 +57,9 @@ def generate_text(model : torch.nn.Module, prompt : str, start : str = 'sssss', 
         else:
             if i == 0:
                 last_word = last_word[0].upper() + last_word[1:]
-                print(last_word, end = ' ')
+                print(last_word, end = ' ', flush = True)
             else:
-                print(last_word, end = ' ')
+                print(last_word, end = ' ', flush = True)
 
         i += 1
 
@@ -71,11 +71,11 @@ def generate_text(model : torch.nn.Module, prompt : str, start : str = 'sssss', 
 
 
 def interact_with_user(model : torch.nn.Module):
-    query = input("💁‍♂️ : ") + ' eeeee'
+    query = input("💁‍♂️ : ").strip() + ' eeeee'
     while query.strip() != 'eeeee':
         generate_text(model, query)
         print()
-        query = input("💁‍♂️ : ") + ' eeeee'
+        query = input("💁‍♂️ : ").strip() + ' eeeee'
 
 device = torch.device("mps" if torch.mps.is_available() else "cpu")
 
@@ -89,17 +89,21 @@ vec_fr, vec_en = make_vectorizers(df)
 vocabulary_size_fr = len(vec_fr.vocabulary_)
 vocabulary_size_en = len(vec_en.vocabulary_)
 
+# Get padding tokens
+VOID_TOKEN_FR = vec_fr.vocabulary_.get('vvvvv')
+VOID_TOKEN_EN = vec_en.vocabulary_.get('vvvvv')
+
 # Get their analyzers
 analyzer_fr, analyzer_en = make_analyzers(vec_fr, vec_en)
 
 # Invert vocabularies
 invert_vocabulary_fr, invert_vocabulary_en = invert_vocabularies(vec_fr, vec_en)
 
-date = '2025-12-29_21-09-03'
+date = '2025-12-31_12-43-03'
 
 model_path = '/Users/samsam-dz/Documents/CoursENS/deep_learning/TP/translator/results/' + date + '/model.pth'
 
-model = Transformer(vocabulary_size_fr, vocabulary_size_en)
+model = Transformer(vocabulary_size_fr, vocabulary_size_en, pad_fr = VOID_TOKEN_FR, pad_en = VOID_TOKEN_EN)
 model.load_state_dict(torch.load(model_path, weights_only=True))
 model = model.to('mps')
 model.eval()

@@ -37,6 +37,8 @@ parser.add_argument("--batch_size", type = int, default = 8, help = "batch size 
 parser.add_argument("--momentum", type = float, default = 0, help = "momentum of the SGD")
 parser.add_argument("--save_dir", type = str, default = "", help = "where to save the model, the logs and the configuration")
 parser.add_argument("--nepochs", type = int, default = 20, help = "number of epochs to make")
+parser.add_argument("--label_smoothing", type = float, default = 0.1, help = "label smoothing to prevent overfitting")
+parser.add_argument("--dropout", type = float, default = 0.1, help = "dropout in the transformer")
 args = parser.parse_args()
 
 
@@ -144,7 +146,7 @@ if args.model_path != '':
 model.to(device)
 
 # Loss (while avoiding void token)
-criterion = nn.CrossEntropyLoss(ignore_index=VOID_TOKEN_EN, reduction = 'sum')
+criterion = nn.CrossEntropyLoss(reduction = 'sum', label_smoothing = args.label_smoothing)
 
 # Optimizer
 optimizer = optim.SGD(model.parameters(), lr = args.lr, momentum = args.momentum)

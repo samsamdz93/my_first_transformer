@@ -15,6 +15,7 @@ class CrossAttention(nn.Module):
         embed_size : int,
         d : int = 64,
         dv : int = None,
+        dropout : float = 0.1
         ):
 
         super(CrossAttention, self).__init__()
@@ -32,6 +33,8 @@ class CrossAttention(nn.Module):
 
         # Decomposition of the value matrix
         self.value = nn.Linear(embed_size, dv)
+
+        self.dropout = nn.Dropout(p = dropout)
 
     def forward(self,
         x : torch.Tensor,
@@ -62,6 +65,9 @@ class CrossAttention(nn.Module):
         # Computation of the attention score
         QK = torch.matmul(Q, K)/torch.sqrt(torch.tensor(data=self.d, dtype = torch.float))
 
+        # Applying a dropout
+        QK = self.dropout(QK)
+
         # Masking padding tokens
         if mask_padding_y is not None:
             mask_x = mask_padding_x.unsqueeze(-1).repeat(1, 1, seq_len_y)
@@ -87,7 +93,8 @@ class MultiHeadAttention(nn.Module):
         embed_size : int,
         num_heads : int = 4,
         d : int = 64,
-        mask : bool = False
+        mask : bool = False,
+        dropout : float = 0.1
         ):
 
         super(MultiHeadAttention, self).__init__()
@@ -107,7 +114,7 @@ class MultiHeadAttention(nn.Module):
         # Different keys and queries matrices
         self.attentions = []
         for _ in range(num_heads):
-            self.attentions.append(CrossAttention(embed_size, d = d, dv = self.head_dim))
+            self.attentions.append(CrossAttention(embed_size, d = d, dv = self.head_dim, dropout = dropout))
         self.attentions = nn.ModuleList(self.attentions)
 
     def forward(self,

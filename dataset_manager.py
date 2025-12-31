@@ -17,7 +17,8 @@ class TranslationDataset(Dataset):
 
         # Maximum length of the dataset
         self.max_len_fr = df['tokens fr'].map(len).max()
-        self.max_len_en = df['tokens en'].map(len).max()
+        self.max_len_en = df['tokens en'].map(len).max() + 1
+        # Adding one to make predictions over the end token
 
         # Padding indices
         self.void_fr = void_fr

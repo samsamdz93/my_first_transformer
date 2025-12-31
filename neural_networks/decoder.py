@@ -4,10 +4,10 @@ from .attention import *
 from .mlp import *
 # Decoder block
 class DecoderBlock(nn.Module):
-    def __init__(self, embed_size : int):
+    def __init__(self, embed_size : int, dropout : float = 0.1):
         super(DecoderBlock, self).__init__()
-        self.att1 = MultiHeadAttention(embed_size, mask = True)
-        self.att2 = MultiHeadAttention(embed_size)
+        self.att1 = MultiHeadAttention(embed_size, mask = True, dropout = dropout)
+        self.att2 = MultiHeadAttention(embed_size, dropout = dropout)
         self.mlp = MLP([embed_size, 2 * embed_size, embed_size])
         self.dropout = nn.Dropout(p = 0.1)
 
@@ -20,7 +20,7 @@ class DecoderBlock(nn.Module):
 
 # Definition of an Decoder
 class Decoder(nn.Module):
-    def __init__(self, embed_size : int, N : int):
+    def __init__(self, embed_size : int, N : int, dropout : float = 0.1):
 
         super(Decoder, self).__init__()
 
@@ -28,7 +28,7 @@ class Decoder(nn.Module):
         self.N = N
 
         for _ in range(N):
-            self.blocks.append(DecoderBlock(embed_size))
+            self.blocks.append(DecoderBlock(embed_size, dropout = dropout))
 
         self.blocks = nn.ModuleList(self.blocks)
 
