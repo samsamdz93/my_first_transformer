@@ -22,7 +22,7 @@ def str_to_tensor_en(prompt : str, device : str = None) -> torch.Tensor:
         return prompt.to(device = device)
 
 
-def generate_text(model : torch.nn.Module, prompt : str, start : str = 'sssss', print_prompt : bool = False, max_len : int = 100):
+def generate_text(model : torch.nn.Module, prompt : str, start : str = 'sssss', print_prompt : bool = False, max_len : int = 64):
     global invert_vocabulary_en, device
 
     if print_prompt:
@@ -100,6 +100,7 @@ analyzer_fr, analyzer_en = make_analyzers(vec_fr, vec_en)
 invert_vocabulary_fr, invert_vocabulary_en = invert_vocabularies(vec_fr, vec_en)
 
 date = '2025-12-31_12-43-03'
+#date = '2026-01-01_18-05-58'
 
 model_path = '/Users/samsam-dz/Documents/CoursENS/deep_learning/TP/translator/results/' + date + '/model.pth'
 

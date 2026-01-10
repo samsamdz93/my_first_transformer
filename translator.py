@@ -146,7 +146,7 @@ if args.model_path != '':
 model.to(device)
 
 # Loss (while avoiding void token)
-criterion = nn.CrossEntropyLoss(reduction = 'sum', label_smoothing = args.label_smoothing)
+criterion = nn.CrossEntropyLoss(reduction = 'sum', label_smoothing = args.label_smoothing, ignore_index = VOID_TOKEN_EN)
 
 # Optimizer
 optimizer = optim.SGD(model.parameters(), lr = args.lr, momentum = args.momentum)

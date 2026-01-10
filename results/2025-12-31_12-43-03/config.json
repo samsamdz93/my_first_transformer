@@ -1,0 +1,1 @@
+{"dataset_path": "../data/eng-fra.txt", "model_path": "", "lr": 0.0003, "batch_size": 16, "momentum": 0, "save_dir": "results", "nepochs": 40}
