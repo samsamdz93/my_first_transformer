@@ -5,6 +5,10 @@ French to english translator based on a transformer architecture. The transforme
 My best model has a 0.5 training loss and 2.2 validation loss. The accuracies are 89% and 65%.
 I have some issues with the `<EOS>` token : my model doesn't finish its generation. Other updates will debug this.
 
+## Dataset used
+
+The dataset used is in the folder `data`. It contains 130k french sentences and their translation in english.
+
 ## Start interaction with a model
 
 `python3 text_generation.py` will open a prompt to start interaction with the model. If an error occurs, it's probably because of the file path of the model.
